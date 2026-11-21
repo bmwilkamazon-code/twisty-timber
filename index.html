@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11161c">
+<title>Print Idea Generator</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{color-scheme:dark}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:#11161c;color:#e7ecf2;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+       display:flex;align-items:center;justify-content:center;
+       padding:24px max(20px,env(safe-area-inset-right)) 24px max(20px,env(safe-area-inset-left))}
+  main{max-width:420px;width:100%;display:flex;flex-direction:column;gap:16px;text-align:center}
+  img{width:96px;height:96px;margin:0 auto;border-radius:22px}
+  h1{font-size:22px;margin:0}
+  p{margin:0;color:#97a4b3;font-size:15px}
+  a.btn,button.btn{display:block;width:100%;font:600 16px system-ui,sans-serif;padding:14px 16px;border-radius:10px;
+        border:1px solid #f0a630;background:#f0a630;color:#1b1300;text-decoration:none;cursor:pointer}
+  button.btn.second{background:transparent;color:#e7ecf2;border-color:#2e3946}
+  ol{text-align:left;color:#97a4b3;font-size:15px;margin:0;padding-left:22px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <img src="icon-192.png" alt="">
+  <h1>Print Idea Generator</h1>
+  <p id="msg">Opening the tool…</p>
+  <a class="btn" id="open" href="https://claude.ai/artifact/8vv187aQBguwdaerpGNBGy">Open the tool</a>
+  <div id="install" hidden>
+    <button class="btn second" id="installBtn" hidden>Install as an app</button>
+    <ol id="steps">
+      <li>Tap ⋮ at the top right of Chrome.</li>
+      <li>Tap <b>Install and create shortcut</b>, then <b>Install</b>.</li>
+      <li>Open it from your app drawer. It goes straight to the tool.</li>
+    </ol>
+  </div>
+</main>
+<script>
+(function(){
+  var TOOL="https://claude.ai/artifact/8vv187aQBguwdaerpGNBGy";
+  var installed=window.matchMedia("(display-mode: standalone)").matches||window.matchMedia("(display-mode: minimal-ui)").matches||
+                /[?&]app=1/.test(location.search)&&document.referrer.indexOf("android-app://")===0;
+  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
+  if(installed){
+    /* running as the installed app: go straight to the tool */
+    location.replace(TOOL);
+    return;
+  }
+  /* running in the browser: stay here so Chrome can install this page */
+  document.getElementById("msg").textContent="Install this page once. The app icon then opens the tool directly.";
+  document.getElementById("install").hidden=false;
+  var deferred=null,btn=document.getElementById("installBtn");
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;btn.hidden=false;});
+  btn.addEventListener("click",function(){if(!deferred)return;deferred.prompt();deferred=null;btn.hidden=true;});
+  window.addEventListener("appinstalled",function(){document.getElementById("msg").textContent="Installed. Open it from your app drawer.";});
+})();
+</script>
+</body>
+</html>
